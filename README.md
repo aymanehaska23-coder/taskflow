@@ -1,73 +1,22 @@
-# React + TypeScript + Vite
+Q1 : Pourquoi <Navigate /> (composant) et pas navigate() (hook) ici ?
+=>Ce code s'exécute pendant la phase de rendu de React, navigate() est fait pour être appelé en dehors du rendu par exemple un handler ou un useEffect.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+Q2 : Quelle différence entre navigate(from) et navigate(from, { replace: true }) ?
+=>La différence principale réside dans la façon dont le routeur gère l'historique du navigateur ce qui impacte le comportement du bouton Retour
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Q3 : Après un POST, pourquoi fait-on setProjects(prev => [...prev, data]) plutôt qu’un
+re-fetch GET ?
+=>Cela permet d'afficher le nouveau projet instantanément pour l'utilisateur tout en évitant une requête réseau complète qui surchargerait inutilement le serveur.
 
-## React Compiler
+Q5 : Quelle différence entre <Link> et <NavLink> ? Pourquoi NavLink ici ?
+=> <NavLink> possède une propriété isActive permettant d'appliquer un style CSS conditionnel quand l'URL correspond au lien, contrairement à <Link>. On l'utilise ici pour mettre en évidence le projet actuellement sélectionné dans la barre latérale.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Q6 : Ce composant sert pour le POST ET le PUT. Qu'est-ce qui change entre les deux usages ?
+=> Ce qui change, ce sont les props passées par le composant parent : pour un POST, les champs sont initialisés vides et la soumission crée un élément ; pour un PUT, les champs sont pré-remplis avec les données existantes et la soumission les met à jour.
 
-## Expanding the ESLint configuration
+Q7 : Arrêtez json-server et tentez un POST. Le message s'affiche ?
+=> Oui, le message s'affiche. Sans le serveur, la requête échoue (Network Error) et Axios lève immédiatement une exception qui est capturée par le bloc catch pour mettre à jour l'état d'erreur et l'afficher dans l'interface.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Q8 : Avec fetch, un 404 ne lance PAS d'erreur. Avec Axios, que se passe-t-il ?
+=> Contrairement à fetch, Axios lance automatiquement une exception pour tous les statuts HTTP d'erreur (4xx et 5xx), ce qui vous fait entrer directement dans le bloc catch.

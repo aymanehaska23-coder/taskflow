@@ -1,0 +1,35 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.loading {
+    padding: 2rem;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.main {
+    padding: 2rem;
+}
+
+.header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.info {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
