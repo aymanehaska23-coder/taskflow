@@ -7,20 +7,23 @@ import MainContent from '../components/MainContent';
 import ProjectForm from '../components/ProjectForm';
 import styles from './Dashboard.module.css';
 import axios from 'axios';
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const [error, setError] = useState<string | null>(null);
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const [saving, setSaving] = useState(false);
+
 interface Project { id: string; name: string; color: string; }
 interface Column { id: string; title: string; tasks: string[]; }
+
 export default function Dashboard() {
+    // Hooks MUST be inside the component body
+    const [error, setError] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
+    
     const { state: authState, dispatch } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [projects, setProjects] = useState<Project[]>([]);
     const [columns, setColumns] = useState<Column[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-// GET — charger les données au montage
+
+    // GET — charger les données au montage
     useEffect(() => {
         async function fetchData() {
             try {
@@ -30,11 +33,16 @@ export default function Dashboard() {
                 ]);
                 setProjects(projRes.data);
                 setColumns(colRes.data);
-            } catch (e) { console.error(e); }finally { setLoading(false); }
+            } catch (e) { 
+                console.error(e); 
+            } finally { 
+                setLoading(false); 
+            }
         }
         fetchData();
     }, []);
-// POST — ajouter un projet
+
+    // POST — ajouter un projet
     async function addProject(name: string, color: string) {
         setSaving(true);
         setError(null);
@@ -51,24 +59,33 @@ export default function Dashboard() {
             setSaving(false);
         }
     }
-// PUT — renommer un projet
-// À VOUS D'ÉCRIRE (voir specs ci-dessous)
-    async function renameProject(project:Project) {
-        const nouveauNom = prompt('NewName', project.name);
-        if(nouveauNom && nouveauNom!=project.name){
-            const {data} = await api.put(`/projects/${project.id}`+{...project,name:nouveauNom});
-            setProjects((pr)=> pr.map((p)=>(p.id === project.id ? data : p)))
+
+    // PUT — renommer un projet
+    async function renameProject(project: Project) {
+        const nouveauNom = prompt('New Name', project.name);
+        if (nouveauNom && nouveauNom !== project.name) {
+            try {
+                // Fixed: Pass URL and Data as separate arguments
+                const { data } = await api.put(`/projects/${project.id}`, { ...project, name: nouveauNom });
+                setProjects((pr) => pr.map((p) => (p.id === project.id ? data : p)));
+            } catch (err) {
+                console.error("Rename failed", err);
+            }
         }
-
     }
-// DELETE — supprimer un projet
-// À VOUS D'ÉCRIRE (voir specs ci-dessous)
-    async function deleteProject(id :string) {
-        await api.delete(`/projects/${id}`);
 
-        setProjects(prev => prev.filter((p)=>p.id !== id));
+    // DELETE — supprimer un projet
+    async function deleteProject(id: string) {
+        try {
+            await api.delete(`/projects/${id}`);
+            setProjects(prev => prev.filter((p) => p.id !== id));
+        } catch (err) {
+            console.error("Delete failed", err);
+        }
     }
+
     if (loading) return <div className={styles.loading}>Chargement...</div>;
+
     return (
         <div className={styles.layout}>
             <Header
@@ -80,11 +97,13 @@ export default function Dashboard() {
             <div className={styles.body}>
                 <Sidebar projects={projects} isOpen={sidebarOpen} />
                 <div className={styles.content}>
+                    {error && <div className={styles.errorBanner}>{error}</div>}
                     <div className={styles.toolbar}>
                         {!showForm ? (
                             <button className={styles.addBtn}
+                                    disabled={saving}
                                     onClick={() => setShowForm(true)}>
-                                + Nouveau projet
+                                {saving ? 'En cours...' : '+ Nouveau projet'}
                             </button>
                         ) : (
                             <ProjectForm
